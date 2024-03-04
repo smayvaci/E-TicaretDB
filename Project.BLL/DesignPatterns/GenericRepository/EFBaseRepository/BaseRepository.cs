@@ -116,7 +116,7 @@ namespace Project.BLL.DesignPatterns.GenericRepository.EFBaseRepository
 
         public object Select(Expression<Func<T, object>> exp)
         {
-            return _db.Set<T>().Select(exp).ToList();
+            return _db.Set<T>().Where(x => x.Status !=ENTITIES.Enums.DataStatus.Deleted).Select(exp).ToList();
         }
 
         public List<MyModel> SelectVia<MyModel>(Expression<Func<T, MyModel>> exp) where MyModel : class
