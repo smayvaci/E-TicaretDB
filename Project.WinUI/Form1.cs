@@ -12,17 +12,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.DataFormats;
+
 
 namespace Project.WinUI
 {
     public partial class Form1 : Form
     {
         CategoryRepository _categoryRepository;
+        ProductRepository _productRepository;
         public Form1()
         {
             InitializeComponent();
             _categoryRepository = new CategoryRepository();
+            _productRepository = new ProductRepository();
         }
 
 
@@ -33,18 +35,14 @@ namespace Project.WinUI
                 ID = x.ID,
                 CategoryName = x.CategoryName,
                 Description = x.Description,
-                Products = x.Products
+                
             });
-            lstCategories.DataSource = _categoryRepository.GetActives();
+          
         }
         private void Form1_Load(object sender, EventArgs e)
         {
             ListCategories();
-        }
-
-        private void btnListCategories_Click(object sender, EventArgs e)
-        {
-            ListCategories();
+            ListProducts();
         }
 
         private void btnAddCategories_Click(object sender, EventArgs e)
@@ -61,6 +59,8 @@ namespace Project.WinUI
             };
             _categoryRepository.Add(category);
             ListCategories();
+
+           
         }
         CategoryVM _selected;
         private void lstCategories_Click(object sender, EventArgs e)
@@ -117,6 +117,69 @@ namespace Project.WinUI
 
 
 
+        }
+
+        void ListProducts()
+        {
+            lstProducts.DataSource = _productRepository.Select(x => new ProductVM
+            {
+                ID = x.ID,
+                ProductName = x.ProductName,
+                UnitPrice = x.UnitPrice,
+            });
+
+        }
+
+        private void btnAddProducts_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtProductName.Text.Trim()))
+            {
+                MessageBox.Show("Urun ismi Giriniz");
+                return;
+            }
+             Product product = new Product()
+            {
+                ProductName = txtName.Text,
+                UnitPrice = Convert.ToDecimal(txtProductPrice.Text),
+                
+            };
+            _productRepository.Add(product);
+            ListProducts();
+
+        }
+
+        private void btnDeleteProducts_Click(object sender, EventArgs e)
+        {
+            if (_selected != null)
+            {
+                Product toBeDeletedProduct = _productRepository.Find(_selected.ID);
+                _productRepository.Delete(toBeDeletedProduct);
+                ListProducts();
+                _selected = null;
+                txtProductName.Text = txtProductPrice.Text = null;
+            }
+            else
+            {
+                MessageBox.Show("Lütfen Urun Seçiniz");
+            }
+        }
+
+        private void btnUpdateProducts_Click(object sender, EventArgs e)
+        {
+            if (_selected !=null)
+            {
+                Product toBeUpdated = _productRepository.Find(_selected.ID);
+                toBeUpdated.ProductName = txtProductName.Text;
+                toBeUpdated.UnitPrice = Convert.ToDecimal(txtProductPrice.Text);
+                _productRepository.Update(toBeUpdated);
+                ListProducts();
+                _selected = null;
+                txtProductName.Text=txtProductPrice.Text = null;
+            }
+            else
+            {
+                MessageBox.Show("Lütfen Urun Seciniz");
+            }
         }
     }
 }
